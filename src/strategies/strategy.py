@@ -1,16 +1,19 @@
 import collections.abc as c
 from datetime import datetime
+import math
 from typing import Dict
 import pandas as pd
 from dataclasses import dataclass
 
 class Strategy:
-    def __init__(self, symbol: str, open_trade: c.Callable, close_trade: c.Callable, start_balance: float):
+    def __init__(self, symbol: str, open_trade: c.Callable, close_trade: c.Callable, deployment_limit: float = .25):
         self.symbol = symbol
         self.open_trade = open_trade
         self.close_trade = close_trade
-        self.start_balance = start_balance
+        self.deployment_limit = deployment_limit
+        self.deployed = 0
         self.current_trade = None
+        self.balance = 0
 
     
     def generate_trade(self, data: Dict[str, pd.DataFrame]):
@@ -24,8 +27,12 @@ class Strategy:
             self.open_trade(self.current_trade)
             return
         if self.current_trade.trailing_stoploss > 0:
-            # Trailing stoploss not implemented yet
-            pass
+            if self.current_trade.order_type == "buy":
+                self.current_trade.stoploss = max(self.current_trade.stoploss, data["5m"]["high"].iloc[-1] - self.current_trade.trailing_stoploss)
+
+            if self.current_trade.order_type == "sell":
+                self.current_trade.stoploss = min(self.current_trade.stoploss if self.current_trade.stoploss > 0 else math.inf, data["5m"]["high"].iloc[-1] + self.current_trade.trailing_stoploss)
+
         if self.current_trade.stoploss > 0:
             if self.current_trade.order_type == "buy":
                 if data["5m"]["low"].iloc[-1] < self.current_trade.stoploss:

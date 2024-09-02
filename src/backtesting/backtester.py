@@ -10,19 +10,19 @@ class Backtester:
 
         self.strategy = strategy
         self.backTestData = backTestData
-        self.starting_balance = starting_balance
         self.data_window = data_window * 288 # translated to 5 minute intervals
 
         self.trade_history = []
 
         self.strategy.open_trade = self.open_trade
         self.strategy.close_trade = self.close_trade
-        self.strategy.start_balance = starting_balance
+        self.strategy.balance = starting_balance
     
     def open_trade(self, trade: Trade):
         self.trade_history.append(trade)
 
     def close_trade(self, trade: Trade):
+        self.strategy.balance += (trade.close_price - trade.open_price) * trade.amount if trade.order_type == 'buy' else (trade.open_price - trade.close_price) * trade.amount
         self.trade_history.append(trade)
 
     def run_test(self):
@@ -41,6 +41,7 @@ class Backtester:
             start_index += 1
             if start_index % 10000 == 0:
                 print(f"Index: {start_index}")
+                print(self.strategy.balance)
 
     def get_results(self):
         return BacktestResult(self.trade_history)
