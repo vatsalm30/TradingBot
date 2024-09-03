@@ -75,4 +75,3 @@ def plot_pips(data: pd.DataFrame):
     print(pips_y)
 
     fplt.show()
-
