@@ -22,22 +22,24 @@ from utils.patterns.lines.trend_line import fit_trendlines_single
 from utils.patterns.lines.trendline_breakout import trendline_breakout
 import matplotlib.pyplot as plt
 
-data = {
-    "1d": pd.read_csv("src/data/ETHUSDT/1d.csv"),
-    "4h": pd.read_csv("src/data/ETHUSDT/4h.csv"),
-    "1h": pd.read_csv("src/data/ETHUSDT/1h.csv"),
-    "30m": pd.read_csv("src/data/ETHUSDT/30m.csv"),
-    "5m": pd.read_csv("src/data/ETHUSDT/5m.csv"),
-}
+trade_data = pd.read_csv("src/data/trades.csv")
+
+# data = {
+#     "1d": pd.read_csv("src/data/ETHUSDT/1d.csv"),
+#     "4h": pd.read_csv("src/data/ETHUSDT/4h.csv"),
+#     "1h": pd.read_csv("src/data/ETHUSDT/1h.csv"),
+#     "30m": pd.read_csv("src/data/ETHUSDT/30m.csv"),
+#     "5m": pd.read_csv("src/data/ETHUSDT/5m.csv"),
+# }
 
 
-strategy = NovelPatternsStrategy("ETHUSDT", None, None, data["1h"], 1, True, False)
-backtester = Backtester(strategy, data)
+# strategy = NovelPatternsStrategy("ETHUSDT", None, None, data["1h"], 1, True, False)
+# backtester = Backtester(strategy, data)
 
 
-backtester.run_test()
+# backtester.run_test()
 
-results = backtester.return_backtest_result()
+# results = backtester.return_backtest_result()
 
 # data = data["1d"]
 # data['date'] = data['timestamp'].astype('datetime64[s]')

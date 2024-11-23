@@ -23,7 +23,7 @@ class Backtester:
         self.strategy.balance = starting_balance
 
         self.input_data = {}
-        self.trades_df = pd.DataFrame(columns=["price", "order_type", "amount", "adx", "rsi", "ema_24", "ema_100", "support_trendline_slope", "resist_trendline_slope", "ema50_slope", "atr"])
+        self.trades_df = pd.DataFrame()
     
     def open_trade(self, trade: Trade):
         self.trade_history.append(trade)
@@ -41,7 +41,7 @@ class Backtester:
         # support_resistance_distance = average_directional_index.adx(self.input_data['5m'])
 
         trendline_slope = trend_line.fit_trendlines_single(self.input_data['5m']["close"].to_numpy())
-        ema50_slope = moving_average.exponential_moving_average(self.input_data['5m'], 50)
+        ema50_slope = moving_average.moving_average_slope(self.input_data['5m'], 50, moving_average_function=moving_average.exponential_moving_average)
         atr = average_true_range.average_true_range(self.input_data['5m'], 14)
 
         self.save_trade_with_labels(trade, adx, rsi, ema_24, ema_100, trendline_slope, ema50_slope, atr)
@@ -63,6 +63,9 @@ class Backtester:
             if start_index % 10000 == 0:
                 print(f"Index: {start_index}")
                 print(self.strategy.balance)
+
+        self.trades_df.to_csv("trades.csv", encoding='utf-8', index=False)
+
 
     def return_backtest_result(self):
         last_trade = ""
@@ -118,14 +121,32 @@ class Backtester:
     
     def save_trade_with_labels(self, trade: Trade, adx, rsi, ema_24, ema_100, trendline_slope, ema50_slope, atr):
         
+        '''
+        print("ADX: " + str(adx.iloc[-1]))
+        print("RSI: " + str(rsi.iloc[-1]))
+        print("EMA 24: " + str(ema_24.iloc[-1]))
+        print("EMA 100: " + str(ema_100.iloc[-1]))
+        print("Support Slope: " + str(trendline_slope[0][0]))
+        print("Resistance Slope: " + str(trendline_slope[1][0]))
+        print("EMA 50 Slope: " + str(ema50_slope.iloc[-1]))
+        print("ATR: " + str(atr.iloc[-1]))
+        '''
 
-        print("ADX: " + str(adx[-1]))
-        print("RSI: " + str(rsi[-1]))
-        print("EMA 24: " + str(ema_24[-1]))
-        print("EMA 100: " + str(ema_100[-1]))
-        print("Trendline Slope: " + str(trendline_slope))
-        print("EMA 50 Slope: " + str(ema50_slope[-1]))
-        print("ATR: " + str(atr))
+        new_row = pd.DataFrame({
+            "price": trade.open_price,
+            "order_type": trade.order_type,
+            "amount": trade.amount,
+            "adx": adx.iloc[-1],
+            "rsi": rsi.iloc[-1],
+            "ema_24_100_diff": ema_24.iloc[-1] - ema_100.iloc[-1],
+            "support_trendline_slope": trendline_slope[0][0],
+            "resist_trendline_slope": trendline_slope[1][0],
+            "ema50_slope": ema50_slope.iloc[-1],
+            "atr": atr.iloc[-1]
+        }, index=[0])
+
+        self.trades_df = pd.concat([self.trades_df, new_row], ignore_index=True)
+
         # self.trade_history.append(trade)
 
     def plot_backtest_result(self):
