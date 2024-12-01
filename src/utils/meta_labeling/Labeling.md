@@ -10,3 +10,5 @@
 - Use several indicators: slope, adx, moving average crosses, trendline slope, distace from support/resistance to see if any thing is significant
 - Visualize and compare the data to maximize profit
 - Make sure not to over fit the data
+- random forest
+- bootstrap aggregation

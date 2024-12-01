@@ -35,12 +35,12 @@ class BreakoutStrategy(Strategy):
             if buy:
                 stop_loss = data["30m"]["low"].iloc[-1] - average_true_range(data["30m"].tail(14), 14).iloc[-1] * 2
                 take_profit = data["30m"]["high"].iloc[-1] + average_true_range(data["30m"].tail(14), 14).iloc[-1]* 2
-                self.current_trade = Trade(amount, "buy", data["5m"]["close"].iloc[-1], None, datetime.strptime(data["5m"]["timestamp"].iloc[-1], '%Y-%m-%d %H:%M:%S'), None, active=False, stoploss=0, takeprofit=0, trailing_stoploss=average_true_range(data["30m"].tail(14), 14).iloc[-1]* 2)
+                self.current_trade = Trade(amount, "buy", data["5m"]["close"].iloc[-1], None, datetime.strptime(data["5m"]["timestamp"].iloc[-1], '%Y-%m-%d %H:%M:%S'), None, active=False, stoploss=0, takeprofit=0, trailing_stoploss=0)
                 return
 
             if sell:
                 stop_loss = data["30m"]["high"].iloc[-1] + average_true_range(data["30m"].tail(14), 14).iloc[-1] * 2
                 take_profit = data["30m"]["low"].iloc[-1] - average_true_range(data["30m"].tail(14), 14).iloc[-1] * 2
-                self.current_trade = Trade(amount, "sell", data["5m"]["close"].iloc[-1], None, datetime.strptime(data["5m"]["timestamp"].iloc[-1], '%Y-%m-%d %H:%M:%S'), None, active=False, stoploss=0, takeprofit=0, trailing_stoploss=average_true_range(data["30m"].tail(14), 14).iloc[-1]* 2)
+                self.current_trade = Trade(amount, "sell", data["5m"]["close"].iloc[-1], None, datetime.strptime(data["5m"]["timestamp"].iloc[-1], '%Y-%m-%d %H:%M:%S'), None, active=False, stoploss=0, takeprofit=0, trailing_stoploss=0)
                 return
         

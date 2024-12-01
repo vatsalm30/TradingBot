@@ -21,51 +21,67 @@ from backtesting.backtester import Backtester
 from utils.patterns.lines.trend_line import fit_trendlines_single
 from utils.patterns.lines.trendline_breakout import trendline_breakout
 import matplotlib.pyplot as plt
-
-trade_data = pd.read_csv("src/data/trades.csv")
-
-# data = {
-#     "1d": pd.read_csv("src/data/ETHUSDT/1d.csv"),
-#     "4h": pd.read_csv("src/data/ETHUSDT/4h.csv"),
-#     "1h": pd.read_csv("src/data/ETHUSDT/1h.csv"),
-#     "30m": pd.read_csv("src/data/ETHUSDT/30m.csv"),
-#     "5m": pd.read_csv("src/data/ETHUSDT/5m.csv"),
-# }
+from scipy.stats import spearmanr
+from utils.meta_labeling.Labeling import Labeler
+from strategies.novel_patterns_labaled.novel_patterns_labaled import NovelPatternsLabaledStrategy
 
 
-# strategy = NovelPatternsStrategy("ETHUSDT", None, None, data["1h"], 1, True, False)
-# backtester = Backtester(strategy, data)
+
+data = {
+    "1d": pd.read_csv("src/data/ETHUSDT/1d.csv"),
+    "4h": pd.read_csv("src/data/ETHUSDT/4h.csv"),
+    "1h": pd.read_csv("src/data/ETHUSDT/1h.csv"),
+    "30m": pd.read_csv("src/data/ETHUSDT/30m.csv"),
+    "5m": pd.read_csv("src/data/ETHUSDT/5m.csv"),
+}
+
+data["1d"]["date"] = data["1d"]["timestamp"].astype('datetime64[s]')
+data["4h"]["date"] = data["4h"]["timestamp"].astype('datetime64[s]')
+data["1h"]["date"] = data["1h"]["timestamp"].astype('datetime64[s]')
+data["30m"]["date"] = data["30m"]["timestamp"].astype('datetime64[s]')
+data["5m"]["date"] = data["5m"]["timestamp"].astype('datetime64[s]')
+
+data["1d"] = data["1d"].set_index('date')
+data["4h"] = data["4h"].set_index('date')
+data["1h"] = data["1h"].set_index('date')
+data["30m"] = data["30m"].set_index('date')
+data["5m"] = data["5m"].set_index('date')
+
+train_data = {}
+
+train_data["1d"] = data["1d"][data["1d"].index < '2024-01-01']
+train_data["4h"] = data["4h"][data["4h"].index < '2024-01-01']
+train_data["1h"] = data["1h"][data["1h"].index < '2024-01-01']
+train_data["30m"] = data["30m"][data["30m"].index < '2024-01-01']
+train_data["5m"] = data["5m"][data["5m"].index < '2024-01-01']
+
+test_data = {}
+
+test_data["1d"] = data["1d"][data["1d"].index >= '2024-01-01']
+test_data["4h"] = data["4h"][data["4h"].index >= '2024-01-01']
+test_data["1h"] = data["1h"][data["1h"].index >= '2024-01-01']
+test_data["30m"] = data["30m"][data["30m"].index >= '2024-01-01']
+test_data["5m"] = data["5m"][data["5m"].index >= '2024-01-01']
+
+training_strategy = NovelPatternsStrategy("ETHUSDT", None, None, pd.read_csv("src/data/ETHUSDT/1h.csv"), 1, True, False)
 
 
-# backtester.run_test()
+labeler = Labeler(training_strategy, None, "src/data/models/randomforest5m/", train_data)
 
-# results = backtester.return_backtest_result()
+strategy = NovelPatternsLabaledStrategy("ETHUSDT", None, None, pd.read_csv("src/data/ETHUSDT/1h.csv"), 1, True, False)
+backtester = Backtester(strategy, test_data, 100, 10_000)
 
-# data = data["1d"]
-# data['date'] = data['timestamp'].astype('datetime64[s]')
-# data = data.set_index('date')
+backtester.run_test()
 
-# data["close"] = np.log(data["close"])
+results = backtester.return_backtest_result()
 
-# lookback = 30
-# support_slope = [np.nan] * len(data)
-# resist_slope = [np.nan] * len(data)
-# for i in range(lookback - 1, len(data)):
-#     support_coefs, resist_coefs =  fit_trendlines_single(data["close"].iloc[i - lookback + 1: i + 1].to_numpy())
-#     support_slope[i] = support_coefs[0]
-#     resist_slope[i] = resist_coefs[0]
+print("Balance: ", results[0])
+print("Max Loss: ", results[1])
+print("Max Profit: ", results[2])
+print("Winning Trades: ", results[3])
+print("Losing Trades: ", results[4])
+print("Loss Percent: ", results[5])
+print("Gain Percent: ", results[6])
 
-# data['support_slope'] = support_slope
-# data['resist_slope'] = resist_slope
-
-# print(data)
-
-# plt.style.use('dark_background')
-# fig, ax1 = plt.subplots()
-# ax2 = ax1.twinx()
-# ax1.plot(np.exp(data["close"]), label='BTC-USDT', color='white')
-# ax2.plot(data['support_slope'], label='Support Slope', color='green')
-# ax2.plot(data['resist_slope'], label='Resistance Slope', color='red')
-# plt.title("Trend Line Slopes ETH-USDT Hourly")
-# plt.legend()
-# plt.show()
+with open("src/trades.json", "w") as f:
+    f.write(backtester.trades_df)

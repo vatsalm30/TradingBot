@@ -57,11 +57,11 @@ class NovelPatternsStrategy(Strategy):
         super().__init__(symbol, open_trade, close_trade, deployment_limit)
 
     def generate_trade(self, data: Dict[str, pd.DataFrame]):
-        if data["5m"]["timestamp"].iloc[-1] != data["1h"]["timestamp"].iloc[-1]:
+        if data["5m"]["timestamp"].iloc[-1] != data["5m"]["timestamp"].iloc[-1]:
             # print(data["5m"]["timestamp"].iloc[-1], data["30m"]["timestamp"].iloc[-1])
             # print()
             return
-        data = data["1h"]
+        data = data["5m"]
         data['date'] = data['timestamp'].astype('datetime64[s]')
         data = data.set_index('date')
         logged_data = np.log(data[["open", "high", "low", "close"]])
@@ -87,13 +87,13 @@ class NovelPatternsStrategy(Strategy):
                 return
         if self.current_trade is None:
             if buy:
-                hard_stop_loss = data["close"].iloc[-1] * 0.998
-                hard_takeprofit = data["close"].iloc[-1] * 1.01
-                self.current_trade = Trade(amount, "buy", data["close"].iloc[-1], None, datetime.strptime(data["timestamp"].iloc[-1], '%Y-%m-%d %H:%M:%S'), None, active=False, stoploss=hard_stop_loss, takeprofit=hard_takeprofit, trailing_stoploss=average_true_range(data.tail(14), 14).iloc[-1]* 2)
+                hard_stop_loss = data["close"].iloc[-1] * 0.998 * 0
+                hard_takeprofit = data["close"].iloc[-1] * 1.01 * 0
+                self.current_trade = Trade(amount, "buy", data["close"].iloc[-1], None, datetime.strptime(data["timestamp"].iloc[-1], '%Y-%m-%d %H:%M:%S'), None, active=False, stoploss=hard_stop_loss, takeprofit=hard_takeprofit, trailing_stoploss=average_true_range(data.tail(14), 14).iloc[-1]* 2 * 0)
                 return
 
             if sell:
-                hard_stop_loss = data["close"].iloc[-1] * 1.002
-                hard_takeprofit = data["close"].iloc[-1] * 0.99
-                self.current_trade = Trade(amount, "sell", data["close"].iloc[-1], None, datetime.strptime(data["timestamp"].iloc[-1], '%Y-%m-%d %H:%M:%S'), None, active=False, stoploss=hard_stop_loss, takeprofit=hard_takeprofit, trailing_stoploss=average_true_range(data.tail(14), 14).iloc[-1]* 2)
+                hard_stop_loss = data["close"].iloc[-1] * 1.002 * 0
+                hard_takeprofit = data["close"].iloc[-1] * 0.99 * 0
+                self.current_trade = Trade(amount, "sell", data["close"].iloc[-1], None, datetime.strptime(data["timestamp"].iloc[-1], '%Y-%m-%d %H:%M:%S'), None, active=False, stoploss=hard_stop_loss, takeprofit=hard_takeprofit, trailing_stoploss=average_true_range(data.tail(14), 14).iloc[-1]* 2 * 0)
                 return

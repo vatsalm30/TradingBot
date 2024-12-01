@@ -64,9 +64,6 @@ class Backtester:
                 print(f"Index: {start_index}")
                 print(self.strategy.balance)
 
-        self.trades_df.to_csv("trades.csv", encoding='utf-8', index=False)
-
-
     def return_backtest_result(self):
         last_trade = ""
 
@@ -133,7 +130,9 @@ class Backtester:
         '''
 
         new_row = pd.DataFrame({
-            "price": trade.open_price,
+            "open_price": trade.open_price,
+            "close_price": trade.close_price,
+            "return": (trade.close_price - trade.open_price) / trade.open_price * (-1 if trade.order_type == 'sell' else 1),
             "order_type": trade.order_type,
             "amount": trade.amount,
             "adx": adx.iloc[-1],
