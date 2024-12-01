@@ -23,7 +23,7 @@ from utils.patterns.lines.trendline_breakout import trendline_breakout
 import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
 from utils.meta_labeling.Labeling import Labeler
-from strategies.novel_patterns_labaled.novel_patterns_labaled import NovelPatternsLabaledStrategy
+from strategies.novel_patterns_labeled.novel_patterns_labeled import NovelPatternsLabeledStrategy
 
 
 
@@ -68,7 +68,7 @@ training_strategy = NovelPatternsStrategy("ETHUSDT", None, None, pd.read_csv("sr
 
 labeler = Labeler(training_strategy, None, "src/data/models/randomforest5m/", train_data)
 
-strategy = NovelPatternsLabaledStrategy("ETHUSDT", None, None, pd.read_csv("src/data/ETHUSDT/1h.csv"), 1, True, False)
+strategy = NovelPatternsLabeledStrategy("ETHUSDT", None, None, pd.read_csv("src/data/ETHUSDT/1h.csv"), 1, True, False)
 backtester = Backtester(strategy, test_data, 100, 10_000)
 
 backtester.run_test()

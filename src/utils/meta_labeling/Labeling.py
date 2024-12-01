@@ -18,6 +18,9 @@ class Labeler:
 
             backtester.run_test()
             
+            with open("src/data/trades_normalization/trades.csv", "w") as f:
+                f.write(backtester.trades_df)
+
             self.trade_data = backtester.trades_df.copy()
 
             for i in self.trade_data["return"].index:
