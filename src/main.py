@@ -1,19 +1,3 @@
-# from secret import secrets
-# import ccxt
-
-# exchange = ccxt.binance(
-# {
-#     'options': {
-#         'adjustForTimeDifference': True,
-#         'defaultType': 'future',
-#     },
-#     'apiKey': secrets["apiKey"],
-#     'secret': secrets["secret"],
-#     'enableRateLimit': True,
-# })
-
-# exchange.set_sandbox_mode(True)
-
 import pandas as pd
 import numpy as np
 from strategies.novel_patterns.novel_patterns import NovelPatternsStrategy
@@ -28,11 +12,11 @@ from strategies.novel_patterns_labeled.novel_patterns_labeled import NovelPatter
 
 
 data = {
-    "1d": pd.read_csv("src/data/ETHUSDT/1d.csv"),
-    "4h": pd.read_csv("src/data/ETHUSDT/4h.csv"),
-    "1h": pd.read_csv("src/data/ETHUSDT/1h.csv"),
-    "30m": pd.read_csv("src/data/ETHUSDT/30m.csv"),
-    "5m": pd.read_csv("src/data/ETHUSDT/5m.csv"),
+    "1d": pd.read_csv("src/data/ETHUSDT/1d.csv", on_bad_lines='skip'),
+    "4h": pd.read_csv("src/data/ETHUSDT/4h.csv", on_bad_lines='skip'),
+    "1h": pd.read_csv("src/data/ETHUSDT/1h.csv", on_bad_lines='skip'),
+    "30m": pd.read_csv("src/data/ETHUSDT/30m.csv", on_bad_lines='skip'),
+    "5m": pd.read_csv("src/data/ETHUSDT/5m.csv", on_bad_lines='skip'),
 }
 
 data["1d"]["date"] = data["1d"]["timestamp"].astype('datetime64[s]')
@@ -63,13 +47,12 @@ test_data["1h"] = data["1h"][data["1h"].index >= '2024-01-01']
 test_data["30m"] = data["30m"][data["30m"].index >= '2024-01-01']
 test_data["5m"] = data["5m"][data["5m"].index >= '2024-01-01']
 
-training_strategy = NovelPatternsStrategy("ETHUSDT", None, None, pd.read_csv("src/data/ETHUSDT/1h.csv"), 1, True, False)
-
+training_strategy = NovelPatternsStrategy("ETHUSDT", None, None, pd.read_csv("src/data/ETHUSDT/5m.csv"), 1, False, True)
 
 labeler = Labeler(training_strategy, None, "src/data/models/randomforest5m/", train_data)
 
 strategy = NovelPatternsLabeledStrategy("ETHUSDT", None, None, pd.read_csv("src/data/ETHUSDT/1h.csv"), 1, True, False)
-backtester = Backtester(strategy, test_data, 100, 10_000)
+backtester = Backtester(strategy, data, 100, 10_000)
 
 backtester.run_test()
 
@@ -83,5 +66,4 @@ print("Losing Trades: ", results[4])
 print("Loss Percent: ", results[5])
 print("Gain Percent: ", results[6])
 
-with open("src/trades.json", "w") as f:
-    f.write(backtester.trades_df)
+backtester.trades_df.to_csv("src/trades.csv")

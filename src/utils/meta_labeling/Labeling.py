@@ -18,8 +18,7 @@ class Labeler:
 
             backtester.run_test()
             
-            with open("src/data/trades_normalization/trades.csv", "w") as f:
-                f.write(backtester.trades_df)
+            backtester.trades_df.to_csv("src/data/trades_normalization/trades.csv")
 
             self.trade_data = backtester.trades_df.copy()
 
@@ -91,22 +90,10 @@ class Labeler:
     
     def predict(self, data: pd.DataFrame, model_type):
         data = data[["adx", "ema_24_100_diff", "support_trendline_slope", "resist_trendline_slope", "ema50_slope", "atr", "rsi"]]
-        data["adx"] = self.normalize_data(data["adx"])
-        data["ema_24_100_diff"] = self.normalize_data(data["ema_24_100_diff"])
-        data["support_trendline_slope"] = self.normalize_data(data["support_trendline_slope"])
-        data["resist_trendline_slope"] = self.normalize_data(data["resist_trendline_slope"])
-        data["ema50_slope"] = self.normalize_data(data["ema50_slope"])
-        data["atr"] = self.normalize_data(data["atr"])
 
         return self.buy_model.predict(data.iloc[:, :-1].values) if model_type == "buy" else self.sell_model.predict(data.iloc[:, :-1].values)
 
     def predict_proba(self, data: pd.DataFrame, model_type):
         data = data[["adx", "ema_24_100_diff", "support_trendline_slope", "resist_trendline_slope", "ema50_slope", "atr", "rsi"]]
-        data["adx"] = self.normalize_data(data["adx"])
-        data["ema_24_100_diff"] = self.normalize_data(data["ema_24_100_diff"])
-        data["support_trendline_slope"] = self.normalize_data(data["support_trendline_slope"])
-        data["resist_trendline_slope"] = self.normalize_data(data["resist_trendline_slope"])
-        data["ema50_slope"] = self.normalize_data(data["ema50_slope"])
-        data["atr"] = self.normalize_data(data["atr"])
 
         return self.buy_model.predict_proba(data.iloc[:, :-1].values) if model_type == "buy" else self.sell_model.predict_proba(data.iloc[:, :-1].values)

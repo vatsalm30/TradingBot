@@ -11,9 +11,9 @@ data_provider = ccxt.binance(
 symbol = 'ETH/USDT'  # Crypto pair
 timeframe = '5m'  # Timeframe for candles
 
-time_inc = 1 * 5 * 60 * 1000 * 500 # 5 minutes
+time_inc = 60 * 5 * 1000 * 1 * 500 # 5 minutes
 
-since_time = 1640995200000
+since_time = 1483228800000
 
 print(time.time())
 

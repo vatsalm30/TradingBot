@@ -66,11 +66,11 @@ class NovelPatternsLabeledStrategy(Strategy):
         super().__init__(symbol, open_trade, close_trade, deployment_limit)
 
     def generate_trade(self, data: Dict[str, pd.DataFrame]):
-        if data["5m"]["timestamp"].iloc[-1] != data["5m"]["timestamp"].iloc[-1]:
+        if data["5m"]["timestamp"].iloc[-1] != data["1h"]["timestamp"].iloc[-1]:
             # print(data["5m"]["timestamp"].iloc[-1], data["30m"]["timestamp"].iloc[-1])
             # print()
             return
-        data = data["5m"]
+        data = data["1h"]
         data['date'] = data['timestamp'].astype('datetime64[s]')
         data = data.set_index('date')
         logged_data = np.log(data[["open", "high", "low", "close"]])
@@ -84,6 +84,7 @@ class NovelPatternsLabeledStrategy(Strategy):
         trendline_slope = trend_line.fit_trendlines_single(data["close"].to_numpy())
 
         trade_data = pd.DataFrame(columns=["adx", "ema_24_100_diff", "support_trendline_slope", "resist_trendline_slope", "ema50_slope", "atr", "rsi"])
+
         trade_data["adx"] = adx(data, 14).tail(1)
         trade_data["ema_24_100_diff"] = exponential_moving_average(data.tail(100), 100).tail(1) - exponential_moving_average(data.tail(24), 24).tail(1)
         trade_data["support_trendline_slope"] = [trendline_slope[0][0]]
@@ -100,8 +101,6 @@ class NovelPatternsLabeledStrategy(Strategy):
         trade_data["resist_trendline_slope"] = normalize_data(trade_data["resist_trendline_slope"])
         trade_data["ema50_slope"] = normalize_data(trade_data["ema50_slope"])
         trade_data["atr"] = normalize_data(trade_data["atr"])
-
-        print(trade_data)
 
         buy = pred * self.labaler.predict(trade_data, "buy") == 1
         sell = pred * self.labaler.predict(trade_data, "sell") == -1

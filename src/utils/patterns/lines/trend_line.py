@@ -93,6 +93,7 @@ def optimize_slope(support: bool, pivot: int, init_slope: float, y: np.array):
                 derivative = best_err - test_err
 
             if test_err < 0.0: # Derivative failed, give up
+                print(y)
                 raise Exception("Derivative failed. Check your data. ")
 
             get_derivative = False

@@ -41,7 +41,7 @@ class NovelPatternsStrategy(Strategy):
                     }
                     json.dump(patterns, file)
         else:
-            with open('src/strategies/novel_patterns/patterns_5m.json', 'r') as file:
+            with open('src/strategies/novel_patterns/patterns_5m_newlymined.json', 'r') as file:
                 patterns = json.load(file)
                 self.pattern_miner._n_pips = patterns["_n_pips"]
                 self.pattern_miner._lookback = patterns["_lookback"]
